@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@theme {
+  --color-aarvi-bg: #07152B;
+  --color-aarvi-bg-secondary: #102341;
+  --color-aarvi-surface: rgba(255, 255, 255, 0.07);
+  --color-aarvi-surface-hover: rgba(255, 255, 255, 0.11);
+  --color-aarvi-border: rgba(255, 255, 255, 0.14);
+  --color-aarvi-blue: #4778B8;
+  --color-aarvi-blue-bright: #8BB8F2;
+  --color-aarvi-coral: #F16B70;
+  --color-aarvi-coral-soft: rgba(241, 107, 112, 0.16);
+  --color-aarvi-teal: #2DD4BF;
+  --color-aarvi-text: #F7F8FC;
+  --color-aarvi-text-muted: #AAB8CE;
+
+  --font-display: "Plus Jakarta Sans", "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Kannada", system-ui, -apple-system, sans-serif;
+  --font-sans: "DM Sans", "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Kannada", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  :root {
+    --aarvi-font-scale: 1;
+    color-scheme: dark;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: #07152B;
+    color: #F7F8FC;
+    font-size: calc(16px * var(--aarvi-font-scale));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.aarvi-text-large {
+    --aarvi-font-scale: 1.125;
+  }
+
+  html.aarvi-text-xlarge {
+    --aarvi-font-scale: 1.25;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #07152B;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 15% 8%, rgba(71, 120, 184, 0.30), transparent 65%),
+      radial-gradient(ellipse 55% 45% at 85% 6%, rgba(241, 107, 112, 0.22), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 35%, rgba(79, 70, 229, 0.14), transparent 70%);
+    background-attachment: fixed;
+    color: #F7F8FC;
+    line-height: 1.62;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: #F7F8FC;
+    text-wrap: balance;
+  }
+
+  input, select, textarea {
+    color-scheme: dark;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 3px solid #8BB8F2;
+    outline-offset: 2px;
+  }
+}
+
+.aarvi-glass {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 50px -22px rgba(2, 8, 22, 0.75);
+}
+
+.aarvi-glass-elevated {
+  background: linear-gradient(135deg, rgba(71, 120, 184, 0.18), rgba(16, 35, 65, 0.82) 55%, rgba(241, 107, 112, 0.12));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 24px 54px -22px rgba(2, 8, 22, 0.8);
+}
+
+.aarvi-hero-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.aarvi-hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 280px;
+  background: radial-gradient(circle at 22% 40%, rgba(71, 120, 184, 0.38), transparent 55%),
+              radial-gradient(circle at 78% 35%, rgba(241, 107, 112, 0.28), transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aarvi-hero-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+html.aarvi-high-contrast body {
+  background-color: #030A17;
+  background-image: none;
+  color: #FFFFFF;
+}
+
+html.aarvi-high-contrast .aarvi-surface,
+html.aarvi-high-contrast .aarvi-glass,
+html.aarvi-high-contrast .aarvi-glass-elevated {
+  background: #0D1E38 !important;
+  border: 1.5px solid #8BB8F2 !important;
+  backdrop-filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -22,34 +22,39 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-      method: 'GET',
-      headers: {
-        apikey: supabaseKey,
-        Accept: 'application/openapi+json',
-      },
-    });
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/profiles?select=id&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          apikey: supabaseKey,
+          Accept: 'application/json',
+        },
+      }
+    );
 
     const responseText = await response.text();
 
     if (!response.ok) {
-      console.error('Supabase REST health check failed:', {
+      console.error('Supabase database check failed:', {
         status: response.status,
         response: responseText.slice(0, 1000),
       });
 
       return res.status(503).json({
         ok: false,
-        error: 'Supabase REST API authentication or connection failed.',
+        error: 'Supabase database query failed.',
         status: response.status,
         details: responseText.slice(0, 500),
+        checkedTable: 'profiles',
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Supabase REST API is reachable.',
+      message: 'Supabase database connection successful.',
       status: response.status,
+      checkedTable: 'profiles',
       tablesDetected: null,
     });
 

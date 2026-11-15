@@ -5,58 +5,58 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({
       ok: false,
-      error: 'Method not allowed.',
+      error: 'Method not allowed',
     });
   }
 
-  const url = process.env.VITE_SUPABASE_URL?.trim();
-  const key = process.env.VITE_SUPABASE_ANON_KEY?.trim();
+  const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim()
+    .replace(/\/+$/, '');
 
-  if (!url || !key) {
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+  if (!supabaseUrl || !supabaseKey) {
     return res.status(503).json({
       ok: false,
-      error: 'Supabase environment variables are missing.',
-      tablesDetected: 0,
+      error: 'Supabase configuration is missing.',
     });
   }
 
   try {
-    const baseUrl = url.replace(/\/+$/, '');
-
-    const response = await fetch(`${baseUrl}/auth/v1/health`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'GET',
       headers: {
-        apikey: key,
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
       },
     });
 
-    const responseText = await response.text();
-
     if (!response.ok) {
+      const details = await response.text();
+
+      console.error('Supabase REST health check:', {
+        status: response.status,
+        details,
+      });
+
       return res.status(503).json({
         ok: false,
-        error: 'Supabase health check failed.',
+        error: 'Supabase REST API is not responding successfully.',
         status: response.status,
-        details: responseText.slice(0, 300),
-        checkedEndpoint: '/auth/v1/health',
-        tablesDetected: 0,
       });
     }
 
     return res.status(200).json({
       ok: true,
-      message: 'Supabase Auth Gateway is reachable.',
+      message: 'Supabase REST API is reachable.',
       status: response.status,
       tablesDetected: null,
     });
   } catch (error) {
-    console.error('Supabase health check error:', error);
+    console.error('Supabase connection error:', error);
 
     return res.status(503).json({
       ok: false,
       error: 'Unable to connect to Supabase.',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      tablesDetected: 0,
     });
   }
 }

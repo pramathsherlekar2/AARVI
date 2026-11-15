@@ -17,41 +17,43 @@ export function OnboardingFlow() {
   const roleLabel = t(`roles.${session.role}`);
 
   return (
-    <div className="min-h-screen bg-[#07152B] text-[#F7F8FC] py-8 px-4 sm:px-6 flex flex-col items-center justify-center">
+    <div className="min-h-screen aarvi-navy-canvas py-8 px-4 sm:px-6 flex flex-col items-center justify-center">
       <div className="w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <AarviLogo size="md" showWordmark />
+          <AarviLogo size="md" showWordmark tone="dark" />
           <div className="flex items-center gap-3">
-            <LanguageSelector compact />
-            <div className="text-sm font-medium text-[#AAB8CE] tabular-nums">
+            <LanguageSelector compact tone="dark" />
+            <div className="text-sm font-medium text-[#F5F0E6]/80 tabular-nums">
               {t('onboarding.stepOf', {step, total: totalSteps, role: roleLabel})}
             </div>
           </div>
         </div>
 
-        {/* Accessible step progress bar */}
-        <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden mb-6" aria-hidden="true">
+        <div
+          className="w-full h-2 bg-[#F5F0E6]/15 rounded-full overflow-hidden mb-6"
+          aria-hidden="true"
+        >
           <div
-            className="h-full bg-gradient-to-r from-[#4778B8] to-[#F16B70] transition-all duration-200"
+            className="h-full bg-[#E99483] transition-all duration-200"
             style={{width: `${(step / totalSteps) * 100}%`}}
           />
         </div>
 
-        <SurfaceCard tone="hero" className="p-6 sm:p-8">
+        <SurfaceCard tone="cream" className="p-6 sm:p-8">
           {step === 1 && (
             <div className="space-y-6">
               <div>
-                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F8FC]">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#172C40]">
                   {t('onboarding.welcomeTitle', {name: session.fullName})}
                 </h1>
-                <p className="text-base text-[#DCE5F4] mt-2">
+                <p className="text-base text-[#172C40]/75 mt-2">
                   {t('onboarding.welcomeBody', {role: roleLabel})}
                 </p>
               </div>
 
               <div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#F7F8FC] mb-3">
-                  <Type className="w-4 h-4 text-[#8BB8F2]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-sm font-semibold text-[#172C40] mb-3">
+                  <Type className="w-4 h-4 text-[#269B91]" aria-hidden="true" />
                   <span>{t('onboarding.preferredTextSize')}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -83,26 +85,26 @@ export function OnboardingFlow() {
                         aria-pressed={active}
                         className={`p-4 rounded-xl border text-left transition-all cursor-pointer min-h-[44px] ${
                           active
-                            ? 'bg-[#4778B8]/25 border-[#8BB8F2] ring-2 ring-[#4778B8]/40'
-                            : 'bg-white/5 border-white/14 hover:border-white/30'
+                            ? 'bg-[#FAF6EE] border-[#269B91] ring-2 ring-[#269B91]/30'
+                            : 'bg-[#FAF6EE]/60 border-[#172C40]/14 hover:border-[#172C40]/30'
                         }`}
                       >
-                        <p className="font-semibold text-[#F7F8FC] text-sm">{opt.label}</p>
-                        <p className="text-xs text-[#AAB8CE] mt-1">{opt.sample}</p>
+                        <p className="font-semibold text-[#172C40] text-sm">{opt.label}</p>
+                        <p className="text-xs text-[#172C40]/70 mt-1">{opt.sample}</p>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/5 border border-white/14">
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-[#FAF6EE] border border-[#172C40]/12">
                 <div className="flex items-start gap-3">
-                  <Eye className="w-5 h-5 text-[#8BB8F2] mt-0.5 shrink-0" aria-hidden="true" />
+                  <Eye className="w-5 h-5 text-[#176D65] mt-0.5 shrink-0" aria-hidden="true" />
                   <div>
-                    <p className="font-semibold text-sm text-[#F7F8FC]">
+                    <p className="font-semibold text-sm text-[#172C40]">
                       {t('onboarding.highContrastTitle')}
                     </p>
-                    <p className="text-xs text-[#AAB8CE] mt-0.5">
+                    <p className="text-xs text-[#172C40]/70 mt-0.5">
                       {t('onboarding.highContrastDesc')}
                     </p>
                   </div>
@@ -114,8 +116,8 @@ export function OnboardingFlow() {
                   onClick={() => updatePreferences({highContrast: !preferences.highContrast})}
                   className={`px-4 py-2 rounded-xl text-sm font-semibold min-h-[44px] whitespace-nowrap shrink-0 cursor-pointer transition-colors ${
                     preferences.highContrast
-                      ? 'bg-[#4778B8] text-white'
-                      : 'bg-white/10 text-[#F7F8FC]'
+                      ? 'bg-[#172C40] text-[#F5F0E6]'
+                      : 'bg-[#EBE3D3] text-[#172C40]'
                   }`}
                 >
                   {preferences.highContrast ? t('onboarding.enabled') : t('onboarding.standard')}
@@ -127,28 +129,28 @@ export function OnboardingFlow() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F8FC]">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#172C40]">
                   {t('onboarding.confirmCircleTitle')}
                 </h1>
-                <p className="text-base text-[#DCE5F4] mt-2">{t('onboarding.confirmCircleBody')}</p>
+                <p className="text-base text-[#172C40]/75 mt-2">{t('onboarding.confirmCircleBody')}</p>
               </div>
 
-              <div className="rounded-xl bg-white/6 border border-white/14 p-5 space-y-3">
+              <div className="rounded-xl bg-[#FAF6EE] border border-[#172C40]/14 p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-xs font-semibold text-[#8BB8F2]">
+                    <p className="text-xs font-semibold text-[#176D65]">
                       {t('onboarding.linkedPatient')}
                     </p>
-                    <p className="font-display text-lg font-bold text-[#F7F8FC]">
+                    <p className="font-display text-lg font-bold text-[#172C40]">
                       {patientProfile.fullName} (
                       {t('onboarding.yearsOld', {age: patientProfile.age})})
                     </p>
                   </div>
-                  <span className="text-sm text-[#AAB8CE]">{patientProfile.primaryPhysician}</span>
+                  <span className="text-sm text-[#172C40]/75">{patientProfile.primaryPhysician}</span>
                 </div>
-                <p className="text-sm text-[#AAB8CE]">{patientProfile.residenceSummary}</p>
-                <div className="pt-3 border-t border-white/12 text-sm text-[#F7F8FC]">
-                  <span className="font-semibold text-[#F16B70]">
+                <p className="text-sm text-[#172C40]/75">{patientProfile.residenceSummary}</p>
+                <div className="pt-3 border-t aarvi-divider text-sm text-[#172C40]">
+                  <span className="font-semibold text-[#A84433]">
                     {t('onboarding.allergiesOnRecord')}
                   </span>{' '}
                   {patientProfile.allergies.join(', ')}
@@ -156,8 +158,8 @@ export function OnboardingFlow() {
               </div>
 
               <div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#F7F8FC] mb-3">
-                  <Volume2 className="w-4 h-4 text-[#8BB8F2]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-sm font-semibold text-[#172C40] mb-3">
+                  <Volume2 className="w-4 h-4 text-[#269B91]" aria-hidden="true" />
                   <span>{t('onboarding.reminderStyleTitle')}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -167,14 +169,14 @@ export function OnboardingFlow() {
                     aria-pressed={preferences.reminderTone === 'gentle'}
                     className={`p-4 rounded-xl border text-left cursor-pointer min-h-[44px] transition-all ${
                       preferences.reminderTone === 'gentle'
-                        ? 'bg-[#4778B8]/25 border-[#8BB8F2] ring-2 ring-[#4778B8]/40'
-                        : 'bg-white/5 border-white/14'
+                        ? 'bg-[#FAF6EE] border-[#269B91] ring-2 ring-[#269B91]/30'
+                        : 'bg-[#FAF6EE]/60 border-[#172C40]/14'
                     }`}
                   >
-                    <p className="font-semibold text-sm text-[#F7F8FC]">
+                    <p className="font-semibold text-sm text-[#172C40]">
                       {t('onboarding.gentleTitle')}
                     </p>
-                    <p className="text-xs text-[#AAB8CE] mt-1">{t('onboarding.gentleDesc')}</p>
+                    <p className="text-xs text-[#172C40]/70 mt-1">{t('onboarding.gentleDesc')}</p>
                   </button>
                   <button
                     type="button"
@@ -182,14 +184,16 @@ export function OnboardingFlow() {
                     aria-pressed={preferences.reminderTone === 'persistent'}
                     className={`p-4 rounded-xl border text-left cursor-pointer min-h-[44px] transition-all ${
                       preferences.reminderTone === 'persistent'
-                        ? 'bg-[#4778B8]/25 border-[#8BB8F2] ring-2 ring-[#4778B8]/40'
-                        : 'bg-white/5 border-white/14'
+                        ? 'bg-[#FAF6EE] border-[#269B91] ring-2 ring-[#269B91]/30'
+                        : 'bg-[#FAF6EE]/60 border-[#172C40]/14'
                     }`}
                   >
-                    <p className="font-semibold text-sm text-[#F7F8FC]">
+                    <p className="font-semibold text-sm text-[#172C40]">
                       {t('onboarding.persistentTitle')}
                     </p>
-                    <p className="text-xs text-[#AAB8CE] mt-1">{t('onboarding.persistentDesc')}</p>
+                    <p className="text-xs text-[#172C40]/70 mt-1">
+                      {t('onboarding.persistentDesc')}
+                    </p>
                   </button>
                 </div>
               </div>
@@ -199,33 +203,33 @@ export function OnboardingFlow() {
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F8FC]">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#172C40]">
                   {t('onboarding.readyTitle', {role: roleLabel})}
                 </h1>
-                <p className="text-base text-[#DCE5F4] mt-2">{t('onboarding.readyBody')}</p>
+                <p className="text-base text-[#172C40]/75 mt-2">{t('onboarding.readyBody')}</p>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-[#2DD4BF]/12 border border-[#2DD4BF]/35">
-                  <Check className="w-5 h-5 text-[#5EEAD4] mt-0.5 shrink-0" aria-hidden="true" />
-                  <div className="text-sm text-[#F7F8FC]">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-[#269B91]/12 border border-[#269B91]/35">
+                  <Check className="w-5 h-5 text-[#176D65] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div className="text-sm text-[#172C40]">
                     <p className="font-semibold">{t('onboarding.readyCoreTitle')}</p>
-                    <p className="text-[#DCE5F4] mt-0.5">{t('onboarding.readyCoreBody')}</p>
+                    <p className="text-[#172C40]/75 mt-0.5">{t('onboarding.readyCoreBody')}</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/14">
-                  <Check className="w-5 h-5 text-[#8BB8F2] mt-0.5 shrink-0" aria-hidden="true" />
-                  <div className="text-sm text-[#F7F8FC]">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-[#FAF6EE] border border-[#172C40]/12">
+                  <Check className="w-5 h-5 text-[#269B91] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div className="text-sm text-[#172C40]">
                     <p className="font-semibold">{t('onboarding.readyModulesTitle')}</p>
-                    <p className="text-[#AAB8CE] mt-0.5">{t('onboarding.readyModulesBody')}</p>
+                    <p className="text-[#172C40]/75 mt-0.5">{t('onboarding.readyModulesBody')}</p>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mt-8 pt-6 border-t border-white/12 flex items-center justify-between gap-4">
+          <div className="mt-8 pt-6 border-t aarvi-divider flex items-center justify-between gap-4">
             {step > 1 ? (
               <Button variant="secondary" onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}>
                 <ArrowLeft className="w-4 h-4" aria-hidden="true" />

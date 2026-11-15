@@ -14,6 +14,7 @@ interface SupabaseHealthSnapshot {
 
 export function OfflineSyncView() {
   const {
+    session,
     browserOnline,
     simulateOffline,
     setSimulateOffline,
@@ -21,18 +22,24 @@ export function OfflineSyncView() {
     syncQueue,
     pendingQueueCount,
     lastLocalSyncAt,
-    flushLocalSyncQueue,
-    resetDemoState,
+    flushSyncQueue,
+    retrySyncItem,
+    resetWorkspaceData,
   } = useAarvi();
   const {t} = useTranslation();
 
   const [checkingHealth, setCheckingHealth] = useState(false);
   const [healthSnapshot, setHealthSnapshot] = useState<SupabaseHealthSnapshot | null>(null);
+  const [flushSummary, setFlushSummary] = useState<string>('');
 
   const handleCheckSupabaseHealth = async () => {
     setCheckingHealth(true);
     try {
-      const res = await fetch('/api/supabase/health');
+      const res = await fetch('/api/supabase/health', {
+        headers: session?.accessToken
+          ? {Authorization: `Bearer ${session.accessToken}`}
+          : undefined,
+      });
       const data = (await res.json()) as SupabaseHealthSnapshot;
       setHealthSnapshot(data);
     } catch (err) {
@@ -48,21 +55,26 @@ export function OfflineSyncView() {
     }
   };
 
+  const handleFlush = async () => {
+    const res = await flushSyncQueue();
+    setFlushSummary(res.databaseStatus);
+  };
+
   return (
     <div className="space-y-6">
       <SurfaceCard tone="hero">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
-            <p className="text-sm font-semibold text-[#8BB8F2]">{t('offline.moduleKicker')}</p>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F8FC] mt-1">
+            <p className="text-sm font-medium text-[#E99483]">{t('offline.moduleKicker')}</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F5F0E6] mt-1">
               {t('offline.pageTitle')}
             </h1>
-            <p className="text-sm text-[#DCE5F4] mt-1.5 max-w-2xl">{t('offline.pageSub')}</p>
+            <p className="text-sm text-[#F5F0E6]/82 mt-1.5 max-w-2xl">{t('offline.pageSub')}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Button
-              variant={simulateOffline ? 'coral' : 'secondary'}
+              variant={simulateOffline ? 'coral' : 'navyOutline'}
               onClick={() => setSimulateOffline(!simulateOffline)}
             >
               {simulateOffline ? (
@@ -81,7 +93,7 @@ export function OfflineSyncView() {
             <Button
               variant="teal"
               disabled={!effectiveOnline || pendingQueueCount === 0}
-              onClick={flushLocalSyncQueue}
+              onClick={() => void handleFlush()}
             >
               <RefreshCw className="w-4 h-4" aria-hidden="true" />
               <span>{t('offline.flushQueue', {count: pendingQueueCount})}</span>
@@ -89,25 +101,41 @@ export function OfflineSyncView() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/15">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-[#F5F0E6]/15">
           <div>
-            <p className="text-xs font-medium text-[#AAB8CE]">{t('offline.browserSignal')}</p>
+            <p className="text-xs font-medium text-[#F5F0E6]/70">{t('offline.browserSignal')}</p>
             <div className="mt-1">
               {browserOnline ? (
-                <StatusIndicator tone="teal" icon="check" label={t('offline.browserOnline')} />
+                <StatusIndicator
+                  onDark
+                  tone="teal"
+                  icon="check"
+                  label={t('offline.browserOnline')}
+                />
               ) : (
-                <StatusIndicator tone="coral" icon="offline" label={t('offline.browserOffline')} />
+                <StatusIndicator
+                  onDark
+                  tone="coral"
+                  icon="offline"
+                  label={t('offline.browserOffline')}
+                />
               )}
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-[#AAB8CE]">{t('offline.effectiveMode')}</p>
+            <p className="text-xs font-medium text-[#F5F0E6]/70">{t('offline.effectiveMode')}</p>
             <div className="mt-1">
               {effectiveOnline ? (
-                <StatusIndicator tone="teal" icon="sync" label={t('offline.onlineActive')} />
+                <StatusIndicator
+                  onDark
+                  tone="teal"
+                  icon="sync"
+                  label={t('offline.onlineActive')}
+                />
               ) : (
                 <StatusIndicator
+                  onDark
                   tone="coral"
                   icon="offline"
                   label={
@@ -121,14 +149,19 @@ export function OfflineSyncView() {
           </div>
 
           <div>
-            <p className="text-xs font-medium text-[#AAB8CE]">{t('offline.lastLocalCheck')}</p>
-            <p className="text-sm font-semibold text-[#F7F8FC] mt-1">{lastLocalSyncAt}</p>
+            <p className="text-xs font-medium text-[#F5F0E6]/70">{t('offline.lastLocalCheck')}</p>
+            <p className="text-sm font-semibold text-[#F5F0E6] mt-1">{lastLocalSyncAt}</p>
           </div>
         </div>
       </SurfaceCard>
 
-      {/* Server-Side Read-Only Supabase Health Check */}
-      <SurfaceCard>
+      {flushSummary && (
+        <SurfaceCard tone="inset">
+          <p className="text-sm font-medium text-[#176D65]">{flushSummary}</p>
+        </SurfaceCard>
+      )}
+
+      <SurfaceCard tone="cream">
         <SectionHeader
           title={t('offline.serverHealthTitle')}
           subtitle={t('offline.serverHealthSub')}
@@ -136,7 +169,7 @@ export function OfflineSyncView() {
             <Button
               variant="secondary"
               size="sm"
-              disabled={checkingHealth}
+              disabled={checkingHealth || !effectiveOnline}
               onClick={() => void handleCheckSupabaseHealth()}
             >
               <Database className="w-4 h-4" aria-hidden="true" />
@@ -148,34 +181,35 @@ export function OfflineSyncView() {
         />
 
         {healthSnapshot && (
-          <div className="p-4 rounded-xl bg-white/5 border border-white/12 space-y-2 text-sm">
+          <div className="p-4 rounded-xl bg-[#FAF6EE] border border-[#172C40]/14 space-y-2 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-[#F7F8FC]">
-                Auth Gateway: {healthSnapshot.authReachable ? 'Reachable' : 'Unreachable'}{' '}
+              <span className="font-semibold text-[#172C40]">
+                {t('offline.authGatewayLabel')}{' '}
+                {healthSnapshot.authReachable ? t('offline.reachable') : t('offline.unreachable')}{' '}
                 {healthSnapshot.authStatus ? `(${healthSnapshot.authStatus})` : ''}
               </span>
-              <span className="text-xs font-mono text-[#8BB8F2]">
-                Tables detected: {healthSnapshot.detectedTables.length}
+              <span className="text-xs font-mono text-[#176D65] tabular-nums">
+                {t('offline.tablesDetected', {count: healthSnapshot.detectedTables.length})}
               </span>
             </div>
             {healthSnapshot.detectedTables.length > 0 && (
-              <p className="text-xs text-[#AAB8CE] font-mono">
+              <p className="text-xs text-[#172C40]/72 font-mono">
                 {healthSnapshot.detectedTables.join(', ')}
               </p>
             )}
             {healthSnapshot.error && (
-              <p className="text-xs text-[#FFB4B7]">{healthSnapshot.error}</p>
+              <p className="text-xs text-[#A84433]">{healthSnapshot.error}</p>
             )}
           </div>
         )}
       </SurfaceCard>
 
-      <SurfaceCard>
+      <SurfaceCard tone="cream">
         <SectionHeader
           title={t('offline.recordedQueueTitle')}
           subtitle={t('offline.recordedQueueSub')}
           action={
-            <Button variant="ghost" size="sm" onClick={resetDemoState}>
+            <Button variant="ghost" size="sm" onClick={() => void resetWorkspaceData()}>
               {t('offline.resetLocalData')}
             </Button>
           }
@@ -187,32 +221,47 @@ export function OfflineSyncView() {
             description={t('offline.emptyQueueDesc')}
           />
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y aarvi-divider">
             {syncQueue.map((item) => (
               <div
                 key={item.id}
                 className="py-3.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-xs text-[#AAB8CE]">
-                    <span className="font-mono font-semibold text-[#8BB8F2] tabular-nums">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#172C40]/68">
+                    <span className="font-mono font-semibold text-[#176D65] tabular-nums">
                       {item.timestampLabel}
                     </span>
                     <span aria-hidden="true">·</span>
                     <span className="font-mono">{item.actionType}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className="font-mono text-[#172C40]/55">
+                      ID: {item.operationId.slice(0, 8)}
+                    </span>
                   </div>
-                  <p className="text-sm font-medium text-[#F7F8FC] mt-0.5">{item.description}</p>
+                  <p className="text-sm font-medium text-[#172C40] mt-0.5">{item.description}</p>
                 </div>
 
-                <div className="shrink-0">
-                  {item.syncStatus === 'pending_local_queue' ? (
-                    <StatusIndicator
-                      tone="amber"
-                      icon="offline"
-                      label={t('offline.queuedLocally')}
-                    />
+                <div className="flex items-center gap-2 shrink-0">
+                  {item.syncStatus === 'pending' ? (
+                    <>
+                      <StatusIndicator
+                        tone="amber"
+                        icon="offline"
+                        label={t('offline.queuedLocally')}
+                      />
+                      {effectiveOnline && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => retrySyncItem(item.operationId)}
+                        >
+                          {t('offline.retryItem')}
+                        </Button>
+                      )}
+                    </>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5EEAD4]">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#176D65]">
                       <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                       <span>{t('offline.savedLocally')}</span>
                     </span>
@@ -225,12 +274,12 @@ export function OfflineSyncView() {
       </SurfaceCard>
 
       {!effectiveOnline && (
-        <SurfaceCard className="bg-[#F16B70]/15 border-[#F16B70]/50">
+        <SurfaceCard tone="muted" className="border-[#A84433]/35">
           <div className="flex items-start gap-3">
-            <CloudOff className="w-5 h-5 text-[#FFB4B7] mt-0.5 shrink-0" aria-hidden="true" />
-            <div className="text-sm text-[#F7F8FC]">
-              <p className="font-semibold text-[#FFB4B7]">{t('offline.offlineBannerTitle')}</p>
-              <p className="text-[#DCE5F4] mt-1">{t('offline.offlineBannerBody')}</p>
+            <CloudOff className="w-5 h-5 text-[#A84433] mt-0.5 shrink-0" aria-hidden="true" />
+            <div className="text-sm text-[#172C40]">
+              <p className="font-semibold text-[#A84433]">{t('offline.offlineBannerTitle')}</p>
+              <p className="text-[#172C40]/80 mt-1">{t('offline.offlineBannerBody')}</p>
             </div>
           </div>
         </SurfaceCard>

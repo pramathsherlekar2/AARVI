@@ -54,46 +54,22 @@ const KEY_CANDIDATES = [
 
 const CANDIDATE_AARVI_TABLES = [
   'profiles',
-  'users',
-  'user_preferences',
   'patients',
-  'patient_profiles',
-  'patient_caregivers',
-  'patient_family_members',
-  'care_circle',
-  'care_circles',
-  'care_circle_members',
-  'care_circle_links',
-  'caregivers',
-  'family_members',
   'medications',
   'medication_schedules',
   'medication_doses',
-  'dose_logs',
-  'medication_logs',
   'appointments',
-  'appointment_prep',
-  'handovers',
   'care_handovers',
-  'shift_handovers',
   'care_plans',
-  'daily_routines',
-  'routines',
-  'care_updates',
-  'messages',
-  'shifts',
   'caregiver_shifts',
-  'tasks',
-  'errands',
-  'documents',
-  'prescriptions',
-  'notifications',
-  'reminder_preferences',
-  'consent_settings',
-  'consents',
-  'sync_queue',
-  'sync_logs',
   'audit_logs',
+  'patient_consent_grants',
+  'patient_consent_history',
+  'escalation_configs',
+  'escalation_events',
+  'notification_deliveries',
+  'care_tasks',
+  'caregiver_visits',
 ] as const;
 
 function resolveEnvVar(candidates: readonly string[]): {name: string | null; value: string | null} {
@@ -152,7 +128,7 @@ export function inspectSupabaseEnv(): SupabaseEnvCheck {
   };
 }
 
-export function createServerSupabaseClient(): SupabaseClient | null {
+export function createServerSupabaseClient(accessToken?: string): SupabaseClient | null {
   const rawUrl = resolveEnvVar(URL_CANDIDATES).value;
   const key = resolveEnvVar(KEY_CANDIDATES).value;
 
@@ -162,13 +138,19 @@ export function createServerSupabaseClient(): SupabaseClient | null {
 
   let projectUrl: string;
   try {
-    // Normalize in case SUPABASE_URL includes /rest/v1/ or trailing paths
     projectUrl = new URL(rawUrl).origin;
   } catch {
     return null;
   }
 
   return createClient(projectUrl, key, {
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      : undefined,
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -219,7 +201,9 @@ async function probeTableReadOnly(
   };
 }
 
-export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnectionReport> {
+export async function testSupabaseReadOnlyConnection(
+  accessToken?: string,
+): Promise<SupabaseConnectionReport> {
   const env = inspectSupabaseEnv();
   const rawUrl = resolveEnvVar(URL_CANDIDATES).value;
   const key = resolveEnvVar(KEY_CANDIDATES).value;
@@ -254,7 +238,7 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
     };
   }
 
-  const client = createServerSupabaseClient();
+  const client = createServerSupabaseClient(accessToken);
   if (!client) {
     return {
       ok: false,
@@ -278,7 +262,6 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
   let detectedTables: string[] = [];
 
   try {
-    // 1. Check Auth health endpoint (read-only)
     const authHealthRes = await fetch(`${baseOrigin}/auth/v1/health`, {
       method: 'GET',
       headers: {apikey: key},
@@ -286,12 +269,11 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
     authReachable = authHealthRes.ok;
     authStatus = `HTTP ${authHealthRes.status}`;
 
-    // 2. Inspect PostgREST OpenAPI root schema (read-only)
     const restRootRes = await fetch(`${baseOrigin}/rest/v1/`, {
       method: 'GET',
       headers: {
         apikey: key,
-        Authorization: `Bearer ${key}`,
+        Authorization: `Bearer ${accessToken || key}`,
         Accept: 'application/openapi+json',
       },
     });
@@ -312,13 +294,11 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
       restSchemaError = `HTTP ${restRootRes.status}: ${bodyText || restRootRes.statusText}`;
     }
 
-    // 3. Sanity-check probe against a guaranteed non-existent table to verify PostgREST error signaling
     const sanityCheckNonExistentTable = await probeTableReadOnly(
       client,
       '__aarvi_nonexistent_probe__',
     );
 
-    // 4. Probe discovered tables (if OpenAPI succeeded) or candidate Aarvi table names (read-only GET limit 1)
     const tablesToProbe =
       detectedTables.length > 0 ? detectedTables : [...CANDIDATE_AARVI_TABLES];
 
@@ -333,7 +313,7 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
     const errorMessage = anyAccessibleTable
       ? null
       : existingFromProbes.length > 0
-        ? `Tables detected (${existingFromProbes.join(', ')}), but read-only query was blocked (check RLS policies).`
+        ? `Tables detected (${existingFromProbes.join(', ')}), but read-only query requires an authenticated Supabase user session (RLS active).`
         : restSchemaError ??
           'Supabase API responded, but no tables were detected in the public schema.';
 
@@ -363,4 +343,105 @@ export async function testSupabaseReadOnlyConnection(): Promise<SupabaseConnecti
       error: err instanceof Error ? err.message : String(err),
     };
   }
+}
+
+export async function signInWithSupabase(email: string, password: string) {
+  const client = createServerSupabaseClient();
+  if (!client) {
+    return {ok: false, error: 'Supabase environment variables are not configured on the server.'};
+  }
+  const {data, error} = await client.auth.signInWithPassword({email, password});
+  if (error || !data.session || !data.user) {
+    return {ok: false, error: error?.message || 'Unable to sign in with Supabase Auth.'};
+  }
+  return {
+    ok: true,
+    user: data.user,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+    expiresAt: data.session.expires_at,
+  };
+}
+
+export async function registerWithSupabase(input: {
+  email: string;
+  password: string;
+  fullName: string;
+  role: string;
+  relationshipOrTitle: string;
+}) {
+  const client = createServerSupabaseClient();
+  if (!client) {
+    return {ok: false, error: 'Supabase environment variables are not configured on the server.'};
+  }
+  const {data, error} = await client.auth.signUp({
+    email: input.email,
+    password: input.password,
+    options: {
+      data: {
+        full_name: input.fullName,
+        role: input.role,
+        relationship_or_title: input.relationshipOrTitle,
+      },
+    },
+  });
+  if (error) {
+    return {ok: false, error: error.message};
+  }
+  return {
+    ok: true,
+    user: data.user,
+    accessToken: data.session?.access_token ?? null,
+    refreshToken: data.session?.refresh_token ?? null,
+    confirmationRequired: Boolean(data.user && !data.session),
+  };
+}
+
+export async function recoverSupabasePassword(email: string) {
+  const client = createServerSupabaseClient();
+  if (!client) {
+    return {ok: false, error: 'Supabase environment variables are not configured on the server.'};
+  }
+  const {error} = await client.auth.resetPasswordForEmail(email);
+  if (error) {
+    return {ok: false, error: error.message};
+  }
+  return {ok: true};
+}
+
+export async function loadAuthenticatedSupabaseSnapshot(accessToken: string) {
+  const client = createServerSupabaseClient(accessToken);
+  if (!client) {
+    return {ok: false, error: 'Supabase client unavailable.'};
+  }
+
+  const {data: userRes, error: userErr} = await client.auth.getUser(accessToken);
+  if (userErr || !userRes.user) {
+    return {ok: false, error: userErr?.message || 'Invalid or expired Supabase session token.'};
+  }
+
+  const [profilesRes, patientsRes, medsRes, dosesRes, aptsRes, handoversRes, auditRes] =
+    await Promise.all([
+      client.from('profiles').select('*').limit(20),
+      client.from('patients').select('*').limit(10),
+      client.from('medications').select('*').limit(50),
+      client.from('medication_doses').select('*').limit(100),
+      client.from('appointments').select('*').limit(50),
+      client.from('care_handovers').select('*').limit(30),
+      client.from('audit_logs').select('*').limit(30),
+    ]);
+
+  return {
+    ok: true,
+    user: userRes.user,
+    tables: {
+      profiles: {data: profilesRes.data ?? [], error: profilesRes.error?.message ?? null},
+      patients: {data: patientsRes.data ?? [], error: patientsRes.error?.message ?? null},
+      medications: {data: medsRes.data ?? [], error: medsRes.error?.message ?? null},
+      medication_doses: {data: dosesRes.data ?? [], error: dosesRes.error?.message ?? null},
+      appointments: {data: aptsRes.data ?? [], error: aptsRes.error?.message ?? null},
+      care_handovers: {data: handoversRes.data ?? [], error: handoversRes.error?.message ?? null},
+      audit_logs: {data: auditRes.data ?? [], error: auditRes.error?.message ?? null},
+    },
+  };
 }

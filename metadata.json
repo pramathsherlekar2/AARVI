@@ -2,5 +2,5 @@
   "name": "Aarvi — Care That Connects",
   "description": "Accessible elderly care coordination platform connecting elderly patients, family members, and caregivers with offline-resilient daily workflows.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

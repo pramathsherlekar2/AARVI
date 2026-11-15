@@ -1,18 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-aarvi-bg: #07152B;
-  --color-aarvi-bg-secondary: #102341;
-  --color-aarvi-surface: rgba(255, 255, 255, 0.07);
-  --color-aarvi-surface-hover: rgba(255, 255, 255, 0.11);
-  --color-aarvi-border: rgba(255, 255, 255, 0.14);
-  --color-aarvi-blue: #4778B8;
-  --color-aarvi-blue-bright: #8BB8F2;
-  --color-aarvi-coral: #F16B70;
-  --color-aarvi-coral-soft: rgba(241, 107, 112, 0.16);
-  --color-aarvi-teal: #2DD4BF;
-  --color-aarvi-text: #F7F8FC;
-  --color-aarvi-text-muted: #AAB8CE;
+  --color-aarvi-navy: #172C40;
+  --color-aarvi-navy-deep: #0F2031;
+  --color-aarvi-navy-mid: #203A52;
+  --color-aarvi-cream: #F5F0E6;
+  --color-aarvi-cream-soft: #FAF6EE;
+  --color-aarvi-cream-muted: #E8E0D0;
+  --color-aarvi-teal: #269B91;
+  --color-aarvi-teal-ink: #176D65;
+  --color-aarvi-coral: #E99483;
+  --color-aarvi-coral-bright: #F16B70;
+  --color-aarvi-coral-ink: #A84433;
 
   --font-display: "Plus Jakarta Sans", "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Kannada", system-ui, -apple-system, sans-serif;
   --font-sans: "DM Sans", "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Kannada", system-ui, -apple-system, sans-serif;
@@ -22,13 +21,13 @@
 @layer base {
   :root {
     --aarvi-font-scale: 1;
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   html {
     font-family: var(--font-sans);
-    background-color: #07152B;
-    color: #F7F8FC;
+    background-color: #172C40;
+    color: #172C40;
     font-size: calc(16px * var(--aarvi-font-scale));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -45,24 +44,14 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background-color: #07152B;
-    background-image:
-      radial-gradient(ellipse 70% 50% at 15% 8%, rgba(71, 120, 184, 0.30), transparent 65%),
-      radial-gradient(ellipse 55% 45% at 85% 6%, rgba(241, 107, 112, 0.22), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 50% 35%, rgba(79, 70, 229, 0.14), transparent 70%);
-    background-attachment: fixed;
-    color: #F7F8FC;
-    line-height: 1.62;
+    background-color: #172C40;
+    color: #172C40;
+    line-height: 1.6;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    color: #F7F8FC;
     text-wrap: balance;
-  }
-
-  input, select, textarea {
-    color-scheme: dark;
   }
 
   .tabular-nums {
@@ -70,60 +59,107 @@
   }
 
   :focus-visible {
-    outline: 3px solid #8BB8F2;
+    outline: 3px solid #269B91;
     outline-offset: 2px;
   }
 }
 
-.aarvi-glass {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 20px 50px -22px rgba(2, 8, 22, 0.75);
+/* Tidewell-inspired vertical fluted architectural texture + warm coral/teal atmospheric glow on Deep Navy */
+.aarvi-navy-canvas {
+  position: relative;
+  background-color: #172C40;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(245, 240, 230, 0.03) 0px,
+      rgba(245, 240, 230, 0.03) 1px,
+      transparent 1px,
+      transparent 14px
+    ),
+    radial-gradient(ellipse 68% 58% at 16% 10%, rgba(38, 155, 145, 0.24), transparent 64%),
+    radial-gradient(ellipse 62% 52% at 84% 16%, rgba(233, 148, 131, 0.28), transparent 60%),
+    linear-gradient(165deg, #0F2031 0%, #172C40 52%, #1D3750 100%);
+  color: #F5F0E6;
 }
 
-.aarvi-glass-elevated {
-  background: linear-gradient(135deg, rgba(71, 120, 184, 0.18), rgba(16, 35, 65, 0.82) 55%, rgba(241, 107, 112, 0.12));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 24px 54px -22px rgba(2, 8, 22, 0.8);
-}
-
-.aarvi-hero-glow {
+.aarvi-hero-banner {
   position: relative;
   overflow: hidden;
+  background-color: #172C40;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(245, 240, 230, 0.035) 0px,
+      rgba(245, 240, 230, 0.035) 1px,
+      transparent 1px,
+      transparent 12px
+    ),
+    radial-gradient(circle at 20% 25%, rgba(38, 155, 145, 0.28), transparent 55%),
+    radial-gradient(circle at 78% 35%, rgba(233, 148, 131, 0.34), transparent 55%),
+    linear-gradient(145deg, #102234 0%, #172C40 60%, #1F3952 100%);
+  color: #F5F0E6;
+  border: 1px solid rgba(245, 240, 230, 0.16);
+  box-shadow: 0 24px 48px -28px rgba(10, 22, 34, 0.55);
 }
 
-.aarvi-hero-glow::before {
-  content: "";
-  position: absolute;
-  inset: -40% -10% auto -10%;
-  height: 280px;
-  background: radial-gradient(circle at 22% 40%, rgba(71, 120, 184, 0.38), transparent 55%),
-              radial-gradient(circle at 78% 35%, rgba(241, 107, 112, 0.28), transparent 55%);
-  pointer-events: none;
-  z-index: 0;
+/* Primary Warm Cream Editorial Surface — replaces pure white */
+.aarvi-cream-panel {
+  background-color: #F5F0E6;
+  color: #172C40;
+  border: 1px solid rgba(23, 44, 64, 0.13);
+  box-shadow: 0 12px 32px -24px rgba(15, 32, 49, 0.28);
 }
 
-.aarvi-hero-glow > * {
-  position: relative;
-  z-index: 1;
+.aarvi-cream-inset {
+  background-color: #FAF6EE;
+  color: #172C40;
+  border: 1px solid rgba(23, 44, 64, 0.10);
 }
 
-html.aarvi-high-contrast body {
-  background-color: #030A17;
-  background-image: none;
-  color: #FFFFFF;
+.aarvi-cream-muted {
+  background-color: #EBE3D3;
+  color: #172C40;
+  border: 1px solid rgba(23, 44, 64, 0.12);
 }
 
-html.aarvi-high-contrast .aarvi-surface,
-html.aarvi-high-contrast .aarvi-glass,
-html.aarvi-high-contrast .aarvi-glass-elevated {
-  background: #0D1E38 !important;
-  border: 1.5px solid #8BB8F2 !important;
-  backdrop-filter: none !important;
+.aarvi-divider {
+  border-color: rgba(23, 44, 64, 0.12);
+}
+
+.aarvi-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(23, 44, 64, 0.22);
+  background-color: #FAF6EE;
+  color: #172C40;
+  font-size: 0.9375rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.aarvi-input::placeholder {
+  color: rgba(23, 44, 64, 0.52);
+}
+
+.aarvi-input:focus {
+  outline: none;
+  border-color: #269B91;
+  box-shadow: 0 0 0 3px rgba(38, 155, 145, 0.18);
+}
+
+/* High-contrast accessible override preserving #172C40 and #F5F0E6 */
+html.aarvi-high-contrast .aarvi-cream-panel,
+html.aarvi-high-contrast .aarvi-cream-inset,
+html.aarvi-high-contrast .aarvi-cream-muted {
+  background-color: #F5F0E6 !important;
+  color: #0B1622 !important;
+  border: 2px solid #172C40 !important;
+}
+
+html.aarvi-high-contrast .aarvi-hero-banner {
+  background: #0F2031 !important;
+  border: 2px solid #F5F0E6 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

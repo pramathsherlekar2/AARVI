@@ -29,13 +29,15 @@ export function AppointmentsView() {
     addAppointment({
       title: title.trim(),
       clinician: clinician.trim(),
-      specialty: specialty.trim() || 'General Review',
+      specialty: specialty.trim() || t('appointments.defaultSpecialty'),
       facility: facility.trim() || 'Sankalp Senior Care Clinic',
-      dateLabel: dateLabel.trim() || 'Next Tue',
+      dateLabel: dateLabel.trim() || t('appointments.defaultDate'),
       timeLabel: timeLabel.trim() || '11:00 AM',
       companionAssigned: companionAssigned.trim() || 'Family Coordinator',
-      prepQuestions: prepQuestion.trim() ? [prepQuestion.trim()] : ['Review current prescriptions'],
-      notes: 'Scheduled via local UI workflow.',
+      prepQuestions: prepQuestion.trim()
+        ? [prepQuestion.trim()]
+        : [t('appointments.defaultPrepQuestion')],
+      notes: t('appointments.defaultNote'),
     });
     setTitle('');
     setClinician('');
@@ -52,15 +54,15 @@ export function AppointmentsView() {
       <SurfaceCard tone="hero">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-[#8BB8F2]">
+            <p className="text-sm font-medium text-[#E99483]">
               {t('appointments.moduleKicker')}
             </p>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F7F8FC] mt-1">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#F5F0E6] mt-1">
               {t('appointments.pageTitle')}
             </h1>
-            <p className="text-sm text-[#DCE5F4] mt-1">{t('appointments.pageSub')}</p>
+            <p className="text-sm text-[#F5F0E6]/82 mt-1">{t('appointments.pageSub')}</p>
           </div>
-          <Button variant="teal" onClick={() => setShowCreate((prev) => !prev)}>
+          <Button variant="coral" onClick={() => setShowCreate((prev) => !prev)}>
             <Plus className="w-4 h-4" aria-hidden="true" />
             <span>
               {showCreate ? t('appointments.closeForm') : t('appointments.scheduleVisit')}
@@ -70,11 +72,11 @@ export function AppointmentsView() {
       </SurfaceCard>
 
       {showCreate && (
-        <SurfaceCard>
+        <SurfaceCard tone="cream">
           <SectionHeader title={t('appointments.addTitle')} />
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="apt-title" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-title" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.visitTitle')}
               </label>
               <input
@@ -83,11 +85,11 @@ export function AppointmentsView() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={t('appointments.visitTitlePlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-doc" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-doc" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.clinician')}
               </label>
               <input
@@ -96,11 +98,11 @@ export function AppointmentsView() {
                 value={clinician}
                 onChange={(e) => setClinician(e.target.value)}
                 placeholder={t('appointments.clinicianPlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-spec" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-spec" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.specialty')}
               </label>
               <input
@@ -108,11 +110,11 @@ export function AppointmentsView() {
                 value={specialty}
                 onChange={(e) => setSpecialty(e.target.value)}
                 placeholder={t('appointments.specialtyPlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-fac" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-fac" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.facility')}
               </label>
               <input
@@ -120,11 +122,11 @@ export function AppointmentsView() {
                 value={facility}
                 onChange={(e) => setFacility(e.target.value)}
                 placeholder={t('appointments.facilityPlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-date" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-date" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.date')}
               </label>
               <input
@@ -132,11 +134,11 @@ export function AppointmentsView() {
                 value={dateLabel}
                 onChange={(e) => setDateLabel(e.target.value)}
                 placeholder={t('appointments.datePlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-time" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-time" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.time')}
               </label>
               <input
@@ -144,22 +146,22 @@ export function AppointmentsView() {
                 value={timeLabel}
                 onChange={(e) => setTimeLabel(e.target.value)}
                 placeholder={t('appointments.timePlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-comp" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-comp" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.companion')}
               </label>
               <input
                 id="apt-comp"
                 value={companionAssigned}
                 onChange={(e) => setCompanionAssigned(e.target.value)}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC]"
+                className="aarvi-input"
               />
             </div>
             <div>
-              <label htmlFor="apt-q" className="block text-sm font-semibold text-[#F7F8FC] mb-1">
+              <label htmlFor="apt-q" className="block text-sm font-semibold text-[#172C40] mb-1">
                 {t('appointments.prepQuestion')}
               </label>
               <input
@@ -167,7 +169,7 @@ export function AppointmentsView() {
                 value={prepQuestion}
                 onChange={(e) => setPrepQuestion(e.target.value)}
                 placeholder={t('appointments.prepQuestionPlaceholder')}
-                className="w-full min-h-[44px] px-4 py-2 rounded-xl border border-white/18 bg-[#07152B]/70 text-sm text-[#F7F8FC] placeholder:text-[#7D90AA]"
+                className="aarvi-input"
               />
             </div>
             <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
@@ -182,13 +184,14 @@ export function AppointmentsView() {
         </SurfaceCard>
       )}
 
-      <div className="flex flex-wrap items-center gap-1 p-1 bg-white/6 rounded-xl border border-white/12 w-fit">
+      <div className="flex flex-wrap items-center gap-1 p-1 bg-[#F5F0E6] rounded-xl border border-[#172C40]/14 w-fit">
         {(
           [
             {id: 'all', label: t('appointments.filterAll')},
             {id: 'upcoming', label: t('appointments.filterUpcoming')},
             {id: 'completed', label: t('appointments.filterCompleted')},
             {id: 'reschedule_requested', label: t('appointments.filterReschedule')},
+            {id: 'cancelled', label: t('appointments.filterCancelled')},
           ] as const
         ).map((tab) => (
           <button
@@ -197,8 +200,8 @@ export function AppointmentsView() {
             onClick={() => setFilter(tab.id)}
             className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               filter === tab.id
-                ? 'bg-[#4778B8] text-white'
-                : 'text-[#AAB8CE] hover:text-white hover:bg-white/10'
+                ? 'bg-[#172C40] text-[#F5F0E6]'
+                : 'text-[#172C40]/75 hover:text-[#172C40] hover:bg-[#EBE3D3]'
             }`}
           >
             {tab.label}
@@ -211,10 +214,10 @@ export function AppointmentsView() {
       ) : (
         <div className="space-y-4">
           {filtered.map((apt) => (
-            <SurfaceCard key={apt.id}>
+            <SurfaceCard key={apt.id} tone="cream">
               <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
                 <div className="space-y-2 flex-1">
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#8BB8F2] tabular-nums">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#176D65] tabular-nums">
                     <Calendar className="w-4 h-4" aria-hidden="true" />
                     <span>
                       {apt.dateLabel} · {apt.timeLabel}
@@ -223,26 +226,26 @@ export function AppointmentsView() {
                     <span>{apt.specialty}</span>
                   </div>
 
-                  <h3 className="font-display text-xl font-bold text-[#F7F8FC]">{apt.title}</h3>
-                  <p className="text-sm text-[#AAB8CE] flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h3 className="font-display text-xl font-bold text-[#172C40]">{apt.title}</h3>
+                  <p className="text-sm text-[#172C40]/75 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span>{apt.clinician}</span>
                     <span aria-hidden="true">·</span>
                     <span className="inline-flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#5EEAD4]" aria-hidden="true" />
+                      <MapPin className="w-3.5 h-3.5 text-[#269B91]" aria-hidden="true" />
                       {apt.facility}
                     </span>
                   </p>
-                  <p className="text-sm text-[#F7F8FC] flex items-center gap-1.5">
-                    <UserCheck className="w-4 h-4 text-[#5EEAD4]" aria-hidden="true" />
+                  <p className="text-sm text-[#172C40] flex items-center gap-1.5">
+                    <UserCheck className="w-4 h-4 text-[#269B91]" aria-hidden="true" />
                     <span>{t('dashboards.companionLabel', {name: apt.companionAssigned})}</span>
                   </p>
 
                   {apt.prepQuestions.length > 0 && (
-                    <div className="pt-3 mt-3 border-t border-white/12">
-                      <p className="text-xs font-semibold text-[#F7F8FC] mb-1.5">
+                    <div className="pt-3 mt-3 border-t aarvi-divider">
+                      <p className="text-xs font-semibold text-[#172C40] mb-1.5">
                         {t('appointments.prepQuestionsTitle')}
                       </p>
-                      <ul className="list-disc pl-5 space-y-1 text-sm text-[#AAB8CE]">
+                      <ul className="list-disc pl-5 space-y-1 text-sm text-[#172C40]/78">
                         {apt.prepQuestions.map((q, idx) => (
                           <li key={idx}>{q}</li>
                         ))}
@@ -251,7 +254,7 @@ export function AppointmentsView() {
                   )}
 
                   {apt.notes && (
-                    <p className="text-xs text-[#AAB8CE] pt-1">
+                    <p className="text-xs text-[#172C40]/70 pt-1">
                       {t('common.note')}: {apt.notes}
                     </p>
                   )}
@@ -279,9 +282,16 @@ export function AppointmentsView() {
                       label={t('appointments.filterReschedule')}
                     />
                   )}
+                  {apt.status === 'cancelled' && (
+                    <StatusIndicator
+                      tone="coral"
+                      icon="alert"
+                      label={t('appointments.filterCancelled')}
+                    />
+                  )}
 
                   <div className="flex flex-wrap gap-2">
-                    {apt.status !== 'completed' && (
+                    {apt.status !== 'completed' && apt.status !== 'cancelled' && (
                       <Button
                         size="sm"
                         variant="teal"
@@ -292,13 +302,22 @@ export function AppointmentsView() {
                       </Button>
                     )}
                     {apt.status === 'upcoming' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => updateAppointmentStatus(apt.id, 'reschedule_requested')}
-                      >
-                        {t('appointments.requestReschedule')}
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => updateAppointmentStatus(apt.id, 'reschedule_requested')}
+                        >
+                          {t('appointments.requestReschedule')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => updateAppointmentStatus(apt.id, 'cancelled')}
+                        >
+                          {t('appointments.cancelVisit')}
+                        </Button>
+                      </>
                     )}
                     {apt.status !== 'upcoming' && (
                       <Button

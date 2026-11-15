@@ -5,7 +5,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({
       ok: false,
-      error: 'Method not allowed',
+      error: 'Method not allowed.',
     });
   }
 
@@ -21,7 +21,9 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/health`, {
+    const baseUrl = url.replace(/\/+$/, '');
+
+    const response = await fetch(`${baseUrl}/auth/v1/health`, {
       method: 'GET',
       headers: {
         apikey: key,
@@ -35,6 +37,8 @@ export default async function handler(req: any, res: any) {
         ok: false,
         error: 'Supabase health check failed.',
         status: response.status,
+        details: responseText.slice(0, 300),
+        checkedEndpoint: '/auth/v1/health',
         tablesDetected: 0,
       });
     }
@@ -51,6 +55,7 @@ export default async function handler(req: any, res: any) {
     return res.status(503).json({
       ok: false,
       error: 'Unable to connect to Supabase.',
+      details: error instanceof Error ? error.message : 'Unknown error',
       tablesDetected: 0,
     });
   }

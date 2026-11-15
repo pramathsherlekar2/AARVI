@@ -26,22 +26,23 @@ export default async function handler(req: any, res: any) {
       method: 'GET',
       headers: {
         apikey: supabaseKey,
-        Authorization: `Bearer ${supabaseKey}`,
+        Accept: 'application/openapi+json',
       },
     });
 
-    if (!response.ok) {
-      const details = await response.text();
+    const responseText = await response.text();
 
-      console.error('Supabase REST health check:', {
+    if (!response.ok) {
+      console.error('Supabase REST health check failed:', {
         status: response.status,
-        details,
+        response: responseText.slice(0, 1000),
       });
 
       return res.status(503).json({
         ok: false,
-        error: 'Supabase REST API is not responding successfully.',
+        error: 'Supabase REST API authentication or connection failed.',
         status: response.status,
+        details: responseText.slice(0, 500),
       });
     }
 
@@ -51,6 +52,7 @@ export default async function handler(req: any, res: any) {
       status: response.status,
       tablesDetected: null,
     });
+
   } catch (error) {
     console.error('Supabase connection error:', error);
 

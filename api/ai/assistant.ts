@@ -1,8 +1,7 @@
 import {
   runCareAssistantQuery,
   type AiAssistantRequest,
-} from '../../server/gemini';
-
+} from '../../server/gemini.ts';
 export default async function handler(req: any, res: any) {
   res.setHeader('Content-Type', 'application/json');
 
